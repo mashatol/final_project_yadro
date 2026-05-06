@@ -63,3 +63,55 @@ def delete_project_by_id_from_pg(project_id):
          WHERE id = '{project_id}';
     """
     execute_postgres_non_select(query=query)
+
+@allure.step("Get service tokens by project_id from postgres")
+def get_service_tokens_by_project_id_from_pg(project_id):
+    query = f"""
+        SELECT *
+        FROM service_tokens
+        WHERE project_id = '{project_id}';
+    """
+    result = execute_postgres_select_all(query=query)
+    return result
+
+@allure.step("Get service tokens count by project_id from postgres")
+def get_service_tokens_count_by_project_id_from_pg(project_id):
+    """Подсчет количества сервисных токенов в проекте"""
+    query = f"""
+        SELECT COUNT(*) as count
+        FROM service_tokens
+        WHERE project_id = '{project_id}';
+    """
+    result = execute_postgres_select_all(query=query)
+    return result[0]['count'] if result else 0
+
+
+@allure.step("Get app by id from postgres")
+def get_app_by_id_from_pg(app_id):
+    query = f"""
+        SELECT *
+        FROM apps
+        WHERE id = '{app_id}';
+    """
+    result = execute_postgres_select_all(query=query)
+    return result
+
+@allure.step("Get apps by project_id from postgres")
+def get_apps_by_project_id_from_pg(project_id):
+    query = f"""
+        SELECT *
+        FROM apps
+        WHERE project_id = '{project_id}';
+    """
+    result = execute_postgres_select_all(query=query)
+    return result
+
+@allure.step("Get apps count by project_id from postgres")
+def get_apps_count_by_project_id_from_pg(project_id):
+    query = f"""
+        SELECT COUNT(*) as count
+        FROM apps
+        WHERE project_id = '{project_id}';
+    """
+    result = execute_postgres_select_all(query=query)
+    return result[0]['count'] if result else 0

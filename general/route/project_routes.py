@@ -5,12 +5,21 @@ from general.requests_wrapper import make_rest_request
 import allure
 from general.helpers import add_auth_header_to_default
 from models.pydantic_models.common_models import BaseResponseModel
-from models.pydantic_models.project_models import CreateProjectModel
+from models.pydantic_models.project_models import CreateProjectModel, GetProjectsModel
 
 CREATE_GET_PROJECT_ROUTE= 'push-console/api/v1/projects'
 ADD_SERVICE_TOKEN_ROUTE= 'push-console/api/v1/projects/{id}/service-tokens'
 PROJECTS_ID_ROUTE = 'push-console/api/v1/projects/{id}'
 DELETE_TOKEN_ROUTE = 'push-console/api/v1/projects/{id}/service-tokens/{value}'
+
+@allure.step('Successful request for GET PROJECTS')
+def success_request_get_projects(auth_token, pydantic_model= GetProjectsModel):
+    headers = add_auth_header_to_default(auth_token)
+    response = make_rest_request(method='GET',
+                                 url =BASE_URL + CREATE_GET_PROJECT_ROUTE,
+                                 headers= headers,
+                                 pydantic_model=pydantic_model)
+    return response
 
 @allure.step('Successful request for CREATE PROJECT')
 def success_request_create_project(request_body,auth_token, pydantic_model = CreateProjectModel):

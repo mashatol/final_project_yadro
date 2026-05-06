@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package kc_push.events.v1;
+
+message ProjectCreatedEvent {
+    string id = 1; // uuid
+}
+
+message ProjectDeletedEvent {
+    string id = 1; // uuid
+}
+
+message AndroidPackageAddedEvent {
+    string id = 1; // uuid
+    string package_name = 2;
+    string project_id = 3; // uuid
+}
+
+message AndroidPackageRemovedEvent {
+    string id = 1; // uuid
+}
+
+message AndroidSignatureAddedEvent {
+    string id = 1; // uuid
+    string android_package_id = 2; // uuid
+    string value = 3; // sha256
+}
+
+message AndroidSignatureRemovedEvent {
+    string id = 1; // uuid
+}
+
+message ServiceTokenCreatedEvent {
+    string value = 1;
+    string project_id = 2; // uuid
+}
+
+message ServiceTokenRemovedEvent {
+    string value = 1;
+    string project_id = 2; // uuid
+}
