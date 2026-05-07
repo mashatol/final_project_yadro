@@ -9,6 +9,8 @@ from general.clients.rabbitmq import create_rabbit_queue
 from general.helpers import add_auth_header_to_default
 from general.helpers.postgres_db_helpers import get_apps_count_by_project_id_from_pg, get_apps_by_project_id_from_pg, \
     get_app_by_id_from_pg
+from general.helpers.postgres_db_pw_helpers import get_apps_count_by_project_id_from_postgres_pw, get_apps_by_project_id_from_postgres_pw, \
+    get_app_by_id_from_postgres_pw
 from general.helpers.rabbitmq_helpers import get_sync_queue_name
 from general.helpers.redis_db_helpers import get_apps_count_by_project_id_from_redis, \
     get_apps_list_by_project_id_from_redis
@@ -31,6 +33,10 @@ def test_create_app_success(create_project_with_deletion, valid_app_body):
     auth_data, project_data = create_project_with_deletion
 
     queue_name = create_rabbit_queue(exchange='test_course', routing_key='sync')
+
+    db_pw_before = get_apps_count_by_project_id_from_postgres_pw(project_data['project_id'])
+    general_checker(actual=db_pw_before is 0, expected=True)
+
     db_before = get_apps_count_by_project_id_from_pg(project_data['project_id'])
     general_checker(actual= db_before is 0, expected=True)
 
@@ -46,10 +52,15 @@ def test_create_app_success(create_project_with_deletion, valid_app_body):
     )
     check_rabbit_event(queue_name=queue_name,
                         expected_event_type='push-console_sync.apps.create')
+
+    db_pw_after = get_apps_count_by_project_id_from_postgres_pw(project_data['project_id'])
+    general_checker(actual=db_pw_after is not None, expected=True)
+
     db_after = get_apps_count_by_project_id_from_pg(project_data['project_id'])
     general_checker(actual=db_after is not None, expected=True)
 
 def test_create_app_missing_fields(app_setup, missing_fields):
+
     db_before = get_apps_count_by_project_id_from_pg(app_setup['project_id'])
     general_checker(actual=db_before is 1, expected=True)
 
@@ -116,6 +127,10 @@ def test_get_apps_success(create_app):
         msg_code='push_console_apps_successful_getting'
     )
 
+    db_pw_count = get_apps_count_by_project_id_from_postgres_pw(project_data['project_id'])
+    general_checker(actual=db_pw_count, expected=1)
+
+
 
 
 def test_get_apps_invalid_project_id(create_authorized_user, invalid_project_id):
@@ -153,13 +168,11 @@ def test_get_apps_unauthorized(create_project_with_deletion):
 
 def test_get_app_success(create_app):
     auth_data, project_data, create_response, app_data = create_app
-    project_id = project_data['project_id']
-    app_id = app_data['app_id']
 
     result = success_request_get_app(
         auth_token=auth_data['access_token'],
-        project_id=project_id,
-        app_id=app_id
+        project_id=project_data['project_id'],
+        app_id=app_data['app_id']
     )
 
     check_rest_response(
@@ -167,6 +180,9 @@ def test_get_app_success(create_app):
         status=ResponseStatus.OK,
         msg_code='push_console_app_successful_getting'
     )
+
+    db_pw = get_app_by_id_from_postgres_pw(app_data['app_id'])
+    print(db_pw)
 
 @pytest.mark.skip("Return 500 instead of 404")
 def test_get_app_not_found(create_app, not_found_app_id):
@@ -359,6 +375,9 @@ def test_update_app_empty_body(app_setup):
 def test_delete_app_success(app_setup_delete):
     queue_name = create_rabbit_queue(exchange='test_course', routing_key='sync')
 
+    db_pw_before = get_apps_count_by_project_id_from_postgres_pw(app_setup_delete['project_id'])
+    general_checker(actual=db_pw_before > 0, expected=True)
+
     db_before = get_app_by_id_from_pg(app_setup_delete['app_id'])
     general_checker(actual=len(db_before)>0, expected=True)
 
@@ -375,6 +394,9 @@ def test_delete_app_success(app_setup_delete):
     )
 
     check_rabbit_event(queue_name=queue_name, expected_event_type='push-console_sync.apps.remove')
+
+    db_pw_after = get_apps_count_by_project_id_from_postgres_pw(app_setup_delete['project_id'])
+    general_checker(actual=db_pw_after, expected=0)
 
     db_after = get_app_by_id_from_pg(app_setup_delete['app_id'])
     general_checker(actual=len(db_after), expected=0)
@@ -484,6 +506,7 @@ def test_delete_app_twice(app_setup_delete):
                         status=ResponseStatus.ERROR,
                         msg_code='push_console_app_not_found'
     )
+
     db_after = get_app_by_id_from_pg(app_setup_delete['app_id'])
     general_checker(actual=len(db_after), expected=0)
 

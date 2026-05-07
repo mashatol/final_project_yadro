@@ -1,6 +1,5 @@
 from itertools import count
 from types import NoneType
-
 from config import BASE_URL
 from general.checkers.general_checkers import general_checker, check_rest_response
 from general.checkers.rabbitmq_checkers import check_rabbit_event
@@ -8,14 +7,16 @@ from general.clients.rabbitmq import create_rabbit_queue
 from general.helpers import add_auth_header_to_default
 from general.helpers.postgres_db_helpers import get_project_by_id_from_pg, get_projects_by_user_id_from_pg, \
     get_service_tokens_by_project_id_from_pg, get_service_tokens_count_by_project_id_from_pg
-from general.helpers.postgres_db_pw_helpers import get_projects_by_user_id_from_postgres_pw
+from general.helpers.postgres_db_pw_helpers import get_projects_by_user_id_from_postgres_pw, \
+    get_projects_count_by_user_id_from_postgres_pw, get_projects_count_by_project_id_from_postgres_pw
 from general.helpers.redis_db_helpers import get_projects_item_by_project_id_from_redis, \
     get_projects_count_by_user_id_from_redis, get_service_tokens_count_by_project_id_from_redis
 from general.requests_wrapper import make_rest_request
 from general.route.project_routes import success_request_update_project, \
     unsuccessful_request_update_project, \
     success_request_delete_project, unsuccessful_request_delete_project, PROJECTS_ID_ROUTE, success_request_add_token, \
-    unsuccessful_request_add_token, success_request_get_projects, unsuccessful_request_delete_token
+    unsuccessful_request_add_token, success_request_get_projects, unsuccessful_request_delete_token, \
+    success_request_delete_token
 from general.utils import rand_project_name
 from test_data.enums import ResponseStatus
 import pytest
@@ -48,6 +49,9 @@ def test_delete_project_success(create_project):
 
     queue_name = create_rabbit_queue(exchange='test_course', routing_key='sync')
 
+    db_pw_before = get_projects_count_by_project_id_from_postgres_pw(project['data']['project_id'])
+    general_checker(actual= db_pw_before > 0, expected=True)
+
     db_before = get_project_by_id_from_pg(project_id=project['data']['project_id'])
     general_checker(actual=len(db_before) > 0, expected=True)
 
@@ -60,6 +64,9 @@ def test_delete_project_success(create_project):
     )
     check_rabbit_event(queue_name=queue_name, expected_event_type='push-console_sync.projects.remove')
 
+    db_pw_after = get_projects_count_by_project_id_from_postgres_pw(project['data']['project_id'])
+    general_checker(actual=db_pw_after, expected= 0)
+
     db_after = get_project_by_id_from_pg(project_id=project['data']['project_id'])
     general_checker(actual=len(db_after), expected=0)
 
@@ -68,6 +75,7 @@ def test_delete_project_invalid_id(create_project, invalid_project_id):
 
     db_projects_before = get_project_by_id_from_pg(auth_data['user_id'])
     count_before = len(db_projects_before)
+
     result = unsuccessful_request_delete_project(auth_token=auth_data['access_token'],
                                                  status_code = 404,
                                                 project_id=invalid_project_id)
@@ -285,6 +293,9 @@ def test_add_service_token_success(create_project_with_deletion):
 
     queue_name = create_rabbit_queue(exchange='test_course', routing_key='sync')
 
+    db_pw_before = get_service_tokens_count_by_project_id_from_pg(project_data['project_id'])
+    general_checker(actual=db_pw_before==0, expected=True)
+
     db_before = get_service_tokens_count_by_project_id_from_pg(project_data['project_id'])
     general_checker(actual = db_before==0, expected=True)
 
@@ -300,6 +311,9 @@ def test_add_service_token_success(create_project_with_deletion):
     )
 
     check_rabbit_event(queue_name=queue_name, expected_event_type='push-console_sync.tokens.create')
+
+    db_pw_after = get_service_tokens_count_by_project_id_from_pg(project_data['project_id'])
+    general_checker(actual=db_pw_after is not None, expected=True)
 
     db_after = get_service_tokens_by_project_id_from_pg(project_data['project_id'])
     general_checker(actual=db_after is not None, expected=True)
@@ -413,6 +427,26 @@ def test_add_token_invalid_project_name(create_authorized_user, invalid_project_
         status=ResponseStatus.ERROR,
         msg_code='go_validation'
     )
+
+def test_delete_service_token_success(create_service_token_to_delete):
+
+    db_pw_before = get_service_tokens_count_by_project_id_from_pg(create_service_token_to_delete['project_id'])
+    general_checker(actual=db_pw_before is not None, expected=True)
+
+    result = success_request_delete_token(
+        auth_token=create_service_token_to_delete['auth_token'],
+        project_id=create_service_token_to_delete['project_id'],
+        token_value=create_service_token_to_delete['token_value']
+    )
+
+    check_rest_response(
+        response=result,
+        status=ResponseStatus.OK,
+        msg_code='push_console_service_token_deleted'
+    )
+
+    db_pw_after = get_service_tokens_count_by_project_id_from_pg(create_service_token_to_delete['project_id'])
+    general_checker(actual=db_pw_after==0, expected=True)
 
 @pytest.mark.skip("Return 200 instead of 404")
 def test_delete_service_token_invalid_value(create_project_with_deletion):

@@ -1,6 +1,8 @@
 import uuid
 from faker import Faker
-from general.route.project_routes import success_request_delete_project
+
+from general.helpers.postgres_db_helpers import get_service_tokens_by_project_id_from_pg
+from general.route.project_routes import success_request_delete_project, success_request_add_token
 from general.utils import rand_project_name
 import pytest
 from general.utils import rand_str
@@ -68,6 +70,25 @@ def update_project_data(create_project_with_deletion):
         'auth_token': auth_data['access_token'],
         'project_id': project['project_id'],
         'old_name': project['name']
+    }
+
+@pytest.fixture
+def create_service_token_to_delete(create_project_with_deletion):
+    auth_data, project_data = create_project_with_deletion
+    project_id = project_data['project_id']
+
+    success_request_add_token(
+        auth_token=auth_data['access_token'],
+        project_id=project_id
+    )
+
+    tokens = get_service_tokens_by_project_id_from_pg(project_id)
+    value = tokens[0]['value'] if tokens else None
+
+    return {
+        'auth_token': auth_data['access_token'],
+        'project_id': project_id,
+        'token_value': value
     }
 
 
