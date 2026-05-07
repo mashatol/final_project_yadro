@@ -12,6 +12,7 @@ GET_APP_ROUTE = 'push-console/api/v1/projects/{project_id}/apps/{app_id}'
 DELETE_APP_ROUTE = 'push-console/api/v1/projects/{project_id}/apps/{app_id}'
 UPDATE_APP_ROUTE = 'push-console/api/v1/projects/{project_id}/apps/{app_id}'
 
+
 @allure.step('Successful request for GET APPS')
 def success_request_get_apps(auth_token, project_id, pydantic_model= GetAppsModel):
     headers = add_auth_header_to_default(auth_token)

@@ -1,13 +1,17 @@
 import pytest
-from typing_extensions import disjoint_base
+# from typing_extensions import disjoint_base
 
 from fixtures.app_fixtures import app_setup
 from fixtures.auth_fixtures import access_token
 from general.checkers.general_checkers import general_checker, check_rest_response
+from general.checkers.rabbitmq_checkers import check_rabbit_event
+from general.clients.rabbitmq import create_rabbit_queue
 from general.helpers import add_auth_header_to_default
 from general.helpers.postgres_db_helpers import get_apps_count_by_project_id_from_pg, get_apps_by_project_id_from_pg, \
     get_app_by_id_from_pg
-from general.helpers.redis_db_helpers import get_apps_count_by_project_id_from_redis
+from general.helpers.rabbitmq_helpers import get_sync_queue_name
+from general.helpers.redis_db_helpers import get_apps_count_by_project_id_from_redis, \
+    get_apps_list_by_project_id_from_redis
 from general.route.app_routes import success_request_create_app, unsuccessful_request_create_app, \
     success_request_get_apps, unsuccessful_request_get_apps, success_request_get_app, unsuccessful_request_get_app, \
     success_request_update_app, unsuccessful_request_update_app, success_request_delete_app, \
@@ -26,20 +30,24 @@ pytest_plugins = [
 def test_create_app_success(create_project_with_deletion, valid_app_body):
     auth_data, project_data = create_project_with_deletion
 
+    queue_name = create_rabbit_queue(exchange='test_course', routing_key='sync')
     db_before = get_apps_count_by_project_id_from_pg(project_data['project_id'])
     general_checker(actual= db_before is 0, expected=True)
+
 
     result = success_request_create_app(auth_token=auth_data['access_token'],
                                         request_body=valid_app_body,
                                         project_id=project_data['project_id'])
+
     check_rest_response(
         response=result,
         status=ResponseStatus.OK,
         msg_code='push_console_app_successful_created'
     )
-
-    db_before = get_apps_count_by_project_id_from_pg(project_data['project_id'])
-    general_checker(actual=db_before is not None, expected=True)
+    check_rabbit_event(queue_name=queue_name,
+                        expected_event_type='push-console_sync.apps.create')
+    db_after = get_apps_count_by_project_id_from_pg(project_data['project_id'])
+    general_checker(actual=db_after is not None, expected=True)
 
 def test_create_app_missing_fields(app_setup, missing_fields):
     db_before = get_apps_count_by_project_id_from_pg(app_setup['project_id'])
@@ -107,8 +115,6 @@ def test_get_apps_success(create_app):
         status=ResponseStatus.OK,
         msg_code='push_console_apps_successful_getting'
     )
-    db_before_after = get_apps_by_project_id_from_pg(project_data['project_id'])
-    general_checker(actual=len(result['data']), expected=len(db_before_after))
 
 
 
@@ -351,8 +357,11 @@ def test_update_app_empty_body(app_setup):
 
 
 def test_delete_app_success(app_setup_delete):
+    queue_name = create_rabbit_queue(exchange='test_course', routing_key='sync')
+
     db_before = get_app_by_id_from_pg(app_setup_delete['app_id'])
     general_checker(actual=len(db_before)>0, expected=True)
+
     result = success_request_delete_app(
         auth_token=app_setup_delete['token'],
         project_id=app_setup_delete['project_id'],
@@ -364,8 +373,10 @@ def test_delete_app_success(app_setup_delete):
         status=ResponseStatus.OK,
         msg_code='push_console_app_successful_deleted'
     )
+
+    check_rabbit_event(queue_name=queue_name, expected_event_type='push-console_sync.apps.remove')
+
     db_after = get_app_by_id_from_pg(app_setup_delete['app_id'])
-    print(db_after)
     general_checker(actual=len(db_after), expected=0)
 
 

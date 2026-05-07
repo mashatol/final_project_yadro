@@ -90,3 +90,13 @@ def unsuccessful_request_add_token(auth_token, project_id, status_code = None, p
                                  status_code=status_code,
                                  pydantic_model=pydantic_model)
     return response
+
+@allure.step('Unsuccessful request for DELETE SERVICE TOKEN')
+def unsuccessful_request_delete_token(auth_token, project_id, token_value, status_code = None, pydantic_model = BaseResponseModel):
+    headers = add_auth_header_to_default(auth_token)
+    response = make_rest_request(method= 'DELETE',
+                                 url =BASE_URL + DELETE_TOKEN_ROUTE.format(id=project_id, value = token_value),
+                                 headers=headers,
+                                 status_code=status_code,
+                                 pydantic_model=pydantic_model)
+    return response
