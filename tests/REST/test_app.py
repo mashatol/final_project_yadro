@@ -35,10 +35,10 @@ def test_create_app_success(create_project_with_deletion, valid_app_body):
     queue_name = create_rabbit_queue(exchange='test_course', routing_key='sync')
 
     db_pw_before = get_apps_count_by_project_id_from_postgres_pw(project_data['project_id'])
-    general_checker(actual=db_pw_before is 0, expected=True)
+    general_checker(actual=db_pw_before == 0, expected=True)
 
     db_before = get_apps_count_by_project_id_from_pg(project_data['project_id'])
-    general_checker(actual= db_before is 0, expected=True)
+    general_checker(actual= db_before==0, expected=True)
 
 
     result = success_request_create_app(auth_token=auth_data['access_token'],
@@ -62,7 +62,7 @@ def test_create_app_success(create_project_with_deletion, valid_app_body):
 def test_create_app_missing_fields(app_setup, missing_fields):
 
     db_before = get_apps_count_by_project_id_from_pg(app_setup['project_id'])
-    general_checker(actual=db_before is 1, expected=True)
+    general_checker(actual=db_before==1, expected=True)
 
     result = unsuccessful_request_create_app(
         auth_token=app_setup['token'],
@@ -81,7 +81,7 @@ def test_create_app_missing_fields(app_setup, missing_fields):
 
 def test_create_app_invalid_name(app_setup, invalid_app_name_body):
     db_before = get_apps_count_by_project_id_from_pg(app_setup['project_id'])
-    general_checker(actual=db_before is 1, expected=True)
+    general_checker(actual=db_before==1, expected=True)
 
     result = unsuccessful_request_create_app(
         auth_token=app_setup['token'],
