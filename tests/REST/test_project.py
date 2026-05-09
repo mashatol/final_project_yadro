@@ -182,7 +182,7 @@ def test_update_project_invalid_name(update_project_data, invalid_project_name):
     result = unsuccessful_request_update_project(auth_token = update_project_data['auth_token'],
                                             request_body = {"name": invalid_project_name},
                                             project_id = update_project_data['project_id'],
-                                                 status_code=422)
+                                            status_code=422)
     check_rest_response(
         response=result,
         status=ResponseStatus.ERROR,
@@ -270,23 +270,6 @@ def test_update_project_empty_name(update_project_data, no_project_name):
     db_project_after = get_project_by_id_from_pg(update_project_data['project_id'])[0]
     general_checker(actual=db_project_after['name'], expected=update_project_data['old_name'])
 
-
-@pytest.mark.skip("Return 500 instead of 422")
-def test_update_invalid_project_name(update_project_data, invalid_project_name):
-
-    db_before = get_project_by_id_from_pg(update_project_data['project_id'])[0]
-    general_checker(actual=db_before['name'], expected=update_project_data['old_name'])
-
-    result = unsuccessful_request_update_project(
-        auth_token=update_project_data['auth_token'],
-        request_body=invalid_project_name,
-        project_id=update_project_data['project_id'],
-        status_code=422
-    )
-
-    check_rest_response(response=result,
-                        status=ResponseStatus.ERROR,
-                        msg_code='go_validation')
 
 def test_add_service_token_success(create_project_with_deletion):
     auth_data, project_data = create_project_with_deletion

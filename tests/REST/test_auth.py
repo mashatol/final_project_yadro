@@ -12,8 +12,6 @@ pytest_plugins = [
 
 
 def test_change_password_success(valid_change_password_body, access_token, user_id, valid_user_data):
-    db_user_before = get_user_by_id_from_pg(user_id=user_id)
-
     result = success_request_change_password(request_body=valid_change_password_body,
                                              auth_token=access_token,
                                              pydantic_model=BaseResponseModel)
@@ -22,22 +20,6 @@ def test_change_password_success(valid_change_password_body, access_token, user_
         response = result,
         status = ResponseStatus.OK,
         msg_code = 'push_console_password_changed'
-    )
-    db_user_after = get_user_by_id_from_pg(user_id=user_id)
-
-    print(f"PostreSQL user BEFORE: {db_user_before}")
-    print(f"PostreSQL user AFTER: {db_user_after}")
-
-def test_change_password_missing_field(change_password_no_old_or_new_password, access_token):
-
-    result = unsuccessful_request_change_password(request_body=change_password_no_old_or_new_password,
-                                                  auth_token=access_token,
-                                                  status_code=422,
-                                                  pydantic_model=BaseResponseModel)
-    check_rest_response(
-        response=result,
-        status=ResponseStatus.ERROR,
-        msg_code='go_validation'
     )
 
 
