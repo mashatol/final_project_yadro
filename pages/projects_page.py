@@ -1,4 +1,6 @@
 # pages/projects_page.py
+import re
+
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
@@ -41,7 +43,7 @@ class ProjectsPage(BasePage):
     @property
     def app_signature_input(self):
         return self.driver.find_element(By.CSS_SELECTOR,
-                                        "div tui-textfield input[formcontrolname = 'app_signature']")
+                                        "div tui-textfield textarea[formcontrolname = 'app_signature']")
 
     @property
     def button_create_app(self):
@@ -71,9 +73,17 @@ class ProjectsPage(BasePage):
 
     def button_create_app_click(self):
         self.button_create_app.click()
+    #
+    #
+    # def get_project_id_from_current_url(self):
+    #     current_url = self.driver.current_url
+    #     match = re.search(r'projects/([a-f0-9-]+)', current_url)
+    #     return match.group(1) if match else None
 
 
     # expectations
     def expect_with_projects(self):
         self.wait.until(expected_conditions.visibility_of_element_located((By.XPATH, "//div[@class='header__title']")))
 
+    def expect_with_project_id(self):
+        self.wait.until(expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, "tui-breadcrumbs a[class = 'ng-star-inserted']")))
