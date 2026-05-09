@@ -1,7 +1,6 @@
 import hashlib
 import random
 import string
-from faker import Faker
 import allure
 from google.protobuf.json_format import MessageToDict
 
@@ -50,10 +49,9 @@ def random_password():
 def grpc_msg_to_dict(grpc_msg):
     return MessageToDict(grpc_msg)
 
-fake = Faker()
 @allure.step('Create random project name')
 def rand_project_name():
-    name = f"{fake.word()}_{random.randint(1 , 999)}"
+    name = f"{rand_str()}_{random.randint(1 , 999)}"
     if len(name) > 50:
         name = name[:50]
     return name
@@ -66,7 +64,7 @@ def rand_app_name():
 
 @allure.step('Create valid random package_name')
 def rand_package_name():
-    return f"com.example.{fake.word().lower()}_{random.randint(1, 9999)}"
+    return f"com.example.{rand_str()}_{random.randint(1, 9999)}"
 
 @allure.step('Create valid random app_signature')
 def rand_app_signature():

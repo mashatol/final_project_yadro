@@ -1,10 +1,9 @@
 import pytest
-from faker import Faker
 from config import EMAIL, PASSWORD
 from general.route.auth_routes import success_request_login_user, success_request_logout_user
 from general.utils import random_email, random_password, rand_str
 from test_data.auth_test_data import login_test_data
-fake = Faker()
+
 
 @pytest.fixture()
 def random_user_data():

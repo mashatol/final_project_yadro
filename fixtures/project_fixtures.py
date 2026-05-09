@@ -1,5 +1,5 @@
 import uuid
-from faker import Faker
+
 
 from general.helpers.postgres_db_helpers import get_service_tokens_by_project_id_from_pg
 from general.route.project_routes import success_request_delete_project, success_request_add_token
@@ -9,7 +9,7 @@ from general.utils import rand_str
 from general.route.project_routes import success_request_create_project
 from test_data.project_test_data import project_test_data
 
-fake = Faker()
+
 
 
 @pytest.fixture()
