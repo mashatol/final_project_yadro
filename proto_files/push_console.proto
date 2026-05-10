@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package kc_push_console_v1;
+
+service Delete {
+  rpc DeleteApp(DeleteAppRequest) returns (DeleteReply);
+  rpc DeleteSignatureFromApp(DeleteSignatureFromAppRequest) returns (DeleteReply);
+}
+
+message DeleteAppRequest {
+  string project_id = 1;
+  string app_id = 2;
+}
+
+message DeleteSignatureFromAppRequest {
+  string project_id = 1;
+  string app_id = 2;
+  string signature_id = 3;
+}
+
+message DeleteReply {
+  oneof result {
+    DeleteError error = 1;
+    DeleteSuccess success = 2;
+  }
+}
+
+message DeleteError {
+  ErrorCode code = 1;
+  string error_message = 2;
+}
+
+message DeleteSuccess {
+}
+
+enum ErrorCode {
+  ERROR_CODE_UNSPECIFIED = 0;
+  BAD_REQUEST = 1;
+  BAD_TOKEN = 2;
+  NOT_FOUND = 3;
+  ACCESS_DENIED = 4;
+  CONFLICT = 5;
+  INTERNAL_ERROR = 6;
+}

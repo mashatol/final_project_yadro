@@ -2,7 +2,7 @@
 import allure
 from config import BASE_URL
 from general.helpers import add_auth_header_to_default
-from general.requests_wrapper import make_rest_request
+from general.requests_wrapper.rest_request import make_rest_request
 from models.pydantic_models.common_models import BaseResponseModel
 from test_data.user_test_data import user_test_data
 

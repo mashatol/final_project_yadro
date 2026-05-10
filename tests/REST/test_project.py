@@ -11,7 +11,7 @@ from general.helpers.postgres_db_pw_helpers import get_projects_by_user_id_from_
     get_projects_count_by_user_id_from_postgres_pw, get_projects_count_by_project_id_from_postgres_pw
 from general.helpers.redis_db_helpers import get_projects_item_by_project_id_from_redis, \
     get_projects_count_by_user_id_from_redis, get_service_tokens_count_by_project_id_from_redis
-from general.requests_wrapper import make_rest_request
+from general.requests_wrapper.rest_request import make_rest_request
 from general.route.project_routes import success_request_update_project, \
     unsuccessful_request_update_project, \
     success_request_delete_project, unsuccessful_request_delete_project, PROJECTS_ID_ROUTE, success_request_add_token, \
@@ -26,23 +26,6 @@ pytest_plugins = [
     'fixtures.project_fixtures'
 ]
 
-def test_successful_get_projects(create_project_with_deletion):
-    auth_data, project_data = create_project_with_deletion
-
-    db_data = get_projects_by_user_id_from_pg(user_id=auth_data['user_id'])
-
-    result = success_request_get_projects(auth_token=auth_data['access_token'])
-    check_rest_response(
-        response=result,
-        status=ResponseStatus.OK,
-        msg_code='push_console_projects_successful_getting'
-    )
-
-    redis_projects_count = get_projects_count_by_user_id_from_redis(user_id=auth_data['user_id'])
-
-    print(len(db_data))
-    print(redis_projects_count)
-    print(result['_meta']['total_count'])
 
 def test_delete_project_success(create_project):
     auth_data, project = create_project

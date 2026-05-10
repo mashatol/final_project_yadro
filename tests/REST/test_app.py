@@ -314,7 +314,6 @@ def test_update_app_invalid_project_id(create_app, valid_update_body, invalid_pr
     )
 
 
-
 def test_update_app_unauthorized(app_setup, valid_update_body):
     db_before = get_apps_by_project_id_from_pg(app_setup['project_id'])
     result = unsuccessful_request_update_app(

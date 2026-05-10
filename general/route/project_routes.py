@@ -1,7 +1,7 @@
 from random import choice
 
 from config import BASE_URL
-from general.requests_wrapper import make_rest_request
+from general.requests_wrapper.rest_request import make_rest_request
 import allure
 from general.helpers import add_auth_header_to_default
 from models.pydantic_models.common_models import BaseResponseModel
