@@ -1,5 +1,4 @@
 import allure
-
 from config import BASE_URL
 from general.requests_wrapper.rest_request import make_rest_request
 from general.helpers import add_auth_header_to_default

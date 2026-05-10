@@ -13,9 +13,7 @@ def general_checker(actual, expected):
 @allure.step('Check REST response')
 def check_rest_response(response, msg_code, status=ResponseStatus.ERROR):
     """
-    Проверка полей REST ответа, которые есть всегда. Если есть поле data,
-    проверяем его в других специальных чекерах.
-
+    Проверка полей REST ответа, которые есть всегда.
     :param response:
     :param msg_code:
     :param status:

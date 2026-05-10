@@ -1,3 +1,5 @@
+import allure
+
 from general.checkers.general_checkers import general_checker
 from general.route.grpc_routes import grpc_delete_app, grpc_delete_app_signature
 
@@ -7,6 +9,7 @@ pytest_plugins = [
     'fixtures.project_fixtures'
 ]
 
+@allure.step('Test success delete app')
 def test_grpc_delete_app_success(access_token, app_setup_delete):
     result = grpc_delete_app(
         auth_token=access_token,
@@ -16,6 +19,7 @@ def test_grpc_delete_app_success(access_token, app_setup_delete):
 
     general_checker(actual= 'success' in result, expected= True)
 
+@allure.step('Test unsuccessful delete app with not_found app_id')
 def test_grpc_delete_app_not_found(create_project_with_deletion, not_found_app_id):
     auth_data, project_data = create_project_with_deletion
     result = grpc_delete_app(
@@ -26,6 +30,7 @@ def test_grpc_delete_app_not_found(create_project_with_deletion, not_found_app_i
 
     general_checker(actual= 'error' in result, expected= True)
 
+@allure.step('Test unsuccessful delete app from project with invalid project_id')
 def test_grpc_delete_app_invalid_project_id(access_token, app_setup_delete):
     result = grpc_delete_app(
         auth_token=access_token,
@@ -35,6 +40,7 @@ def test_grpc_delete_app_invalid_project_id(access_token, app_setup_delete):
 
     general_checker(actual='error' in result, expected=True)
 
+@allure.step('Test unsuccessful delete app without app_id')
 def test_grpc_delete_app_empty_app_id(access_token, create_project_with_deletion):
     auth_data, project_data = create_project_with_deletion
 
@@ -46,7 +52,7 @@ def test_grpc_delete_app_empty_app_id(access_token, create_project_with_deletion
 
     general_checker(actual='error' in result, expected=True)
 
-
+@allure.step('Test unsuccessful delete app without project_id')
 def test_grpc_delete_app_empty_project_id(access_token, app_setup_delete):
     result = grpc_delete_app(
         auth_token=access_token,
@@ -56,6 +62,7 @@ def test_grpc_delete_app_empty_project_id(access_token, app_setup_delete):
 
     general_checker(actual='error' in result, expected=True)
 
+@allure.step('Test unsuccessful delete already delete app')
 def test_grpc_delete_app_already_deleted(access_token, app_setup_delete):
     result1 = grpc_delete_app(
         auth_token=access_token,

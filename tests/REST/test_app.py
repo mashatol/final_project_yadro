@@ -1,3 +1,4 @@
+import allure
 import pytest
 # from typing_extensions import disjoint_base
 
@@ -20,6 +21,7 @@ from general.route.app_routes import success_request_create_app, unsuccessful_re
     unsuccessful_request_delete_app
 from general.utils import rand_app_name, rand_package_name, rand_app_signature
 from models.pydantic_models.app_models import GetAppsModel
+from models.pydantic_models.common_models import BaseResponseWithDataModel
 from test_data.enums import ResponseStatus
 
 pytest_plugins = [
@@ -28,7 +30,7 @@ pytest_plugins = [
     'fixtures.app_fixtures'
 ]
 
-
+@allure.step('Test success create app')
 def test_create_app_success(create_project_with_deletion, valid_app_body):
     auth_data, project_data = create_project_with_deletion
 
@@ -59,6 +61,7 @@ def test_create_app_success(create_project_with_deletion, valid_app_body):
     db_after = get_apps_count_by_project_id_from_pg(project_data['project_id'])
     general_checker(actual=db_after is not None, expected=True)
 
+@allure.step('Test unsuccessful create app with missing fields in request_body')
 def test_create_app_missing_fields(app_setup, missing_fields):
 
     db_before = get_apps_count_by_project_id_from_pg(app_setup['project_id'])
@@ -79,6 +82,7 @@ def test_create_app_missing_fields(app_setup, missing_fields):
     db_after = get_apps_count_by_project_id_from_pg(app_setup['project_id'])
     general_checker(actual=db_after, expected=db_before)
 
+@allure.step('Test unsuccessful create app with invalid app_name')
 def test_create_app_invalid_name(app_setup, invalid_app_name_body):
     db_before = get_apps_count_by_project_id_from_pg(app_setup['project_id'])
     general_checker(actual=db_before==1, expected=True)
@@ -97,6 +101,7 @@ def test_create_app_invalid_name(app_setup, invalid_app_name_body):
     db_after = get_apps_count_by_project_id_from_pg(app_setup['project_id'])
     general_checker(actual=db_after, expected=db_before)
 
+@allure.step('Test unsuccessful create app with invalid app_signature')
 @pytest.mark.skip('Backend return 500 instead of 422')
 def test_create_app_invalid_signature(app_setup, invalid_app_signature_body):
     result = unsuccessful_request_create_app(
@@ -111,7 +116,7 @@ def test_create_app_invalid_signature(app_setup, invalid_app_signature_body):
         msg_code='go_validation'
     )
 
-
+@allure.step('Test success get apps')
 def test_get_apps_success(create_app):
     auth_data, project_data, create_response, app_data = create_app
 
@@ -130,9 +135,7 @@ def test_get_apps_success(create_app):
     db_pw_count = get_apps_count_by_project_id_from_postgres_pw(project_data['project_id'])
     general_checker(actual=db_pw_count, expected=1)
 
-
-
-
+@allure.step('Test unsuccessful get apps with invalid project_id')
 def test_get_apps_invalid_project_id(create_authorized_user, invalid_project_id):
     _, auth_data = create_authorized_user
 
@@ -148,7 +151,7 @@ def test_get_apps_invalid_project_id(create_authorized_user, invalid_project_id)
         msg_code='push_console_project_not_found'
     )
 
-
+@allure.step('Test unsuccessful get apps without access_token')
 def test_get_apps_unauthorized(create_project_with_deletion):
     _, project_data = create_project_with_deletion
     project_id = project_data['project_id']
@@ -165,7 +168,7 @@ def test_get_apps_unauthorized(create_project_with_deletion):
         msg_code='general_unauthorized'
     )
 
-
+@allure.step('Test success get app')
 def test_get_app_success(create_app):
     auth_data, project_data, create_response, app_data = create_app
 
@@ -184,6 +187,7 @@ def test_get_app_success(create_app):
     db_pw = get_app_by_id_from_postgres_pw(app_data['app_id'])
     print(db_pw)
 
+@allure.step('Test unsuccessful get app with not_found app_id')
 @pytest.mark.skip("Return 500 instead of 404")
 def test_get_app_not_found(create_app, not_found_app_id):
     auth_data, project_data, _, _ = create_app
@@ -202,6 +206,7 @@ def test_get_app_not_found(create_app, not_found_app_id):
         msg_code='push_console_app_not_found'
     )
 
+@allure.step('Test unsuccessful get app without access_token')
 def test_get_app_unauthorized(create_app):
     _, project_data, _, app_data = create_app
     project_id = project_data['project_id']
@@ -220,7 +225,7 @@ def test_get_app_unauthorized(create_app):
         msg_code='general_unauthorized'
     )
 
-
+@allure.step('Test success update app')
 def test_update_app_success(app_setup, valid_update_body):
     result = success_request_update_app(
         auth_token=app_setup['token'],
@@ -237,7 +242,7 @@ def test_update_app_success(app_setup, valid_update_body):
     db_after = get_apps_by_project_id_from_pg(app_setup['project_id'])
     general_checker(actual = db_after[0]['name'], expected = valid_update_body['name'])
 
-
+@allure.step('Test unsuccessful update app - new name as old name')
 def test_update_app_same_name(app_setup):
     request_body = {"name": app_setup['app_name']}
 
@@ -258,6 +263,7 @@ def test_update_app_same_name(app_setup):
     db_after = get_apps_by_project_id_from_pg(app_setup['project_id'])
     general_checker(actual=db_before[0]['name'], expected=db_after[0]['name'])
 
+@allure.step('Test unsuccessful update app with invalid app_name')
 def test_update_app_invalid_name(app_setup, invalid_update_body):
     db_before = get_apps_by_project_id_from_pg(app_setup['project_id'])
 
@@ -277,6 +283,7 @@ def test_update_app_invalid_name(app_setup, invalid_update_body):
     db_after = get_apps_by_project_id_from_pg(app_setup['project_id'])
     general_checker(actual=db_before[0]['name'], expected=db_after[0]['name'])
 
+@allure.step('Test unsuccessful update app with not_found app_id')
 @pytest.mark.skip('Return 500 instead of 404')
 def test_update_app_not_found(create_project_with_deletion, valid_update_body, not_found_app_id):
     auth_data, project_data = create_project_with_deletion
@@ -295,7 +302,7 @@ def test_update_app_not_found(create_project_with_deletion, valid_update_body, n
         msg_code='push_console_app_not_found'
     )
 
-
+@allure.step('Test unsuccessful update app with invalid project_id')
 def test_update_app_invalid_project_id(create_app, valid_update_body, invalid_project_id):
     auth_data, _, _, app_data = create_app
 
@@ -313,7 +320,7 @@ def test_update_app_invalid_project_id(create_app, valid_update_body, invalid_pr
         msg_code='push_console_project_not_found'
     )
 
-
+@allure.step('Test unsuccessful update app without access_token')
 def test_update_app_unauthorized(app_setup, valid_update_body):
     db_before = get_apps_by_project_id_from_pg(app_setup['project_id'])
     result = unsuccessful_request_update_app(
@@ -333,11 +340,11 @@ def test_update_app_unauthorized(app_setup, valid_update_body):
     db_after = get_apps_by_project_id_from_pg(app_setup['project_id'])
     general_checker(actual=db_before[0]['name'], expected=db_after[0]['name'])
 
-
-def test_update_app_invalid_token(app_setup, valid_update_body, invalid_token):
+@allure.step('Test unsuccessful update app with invalid access_token')
+def test_update_app_invalid_token(app_setup, valid_update_body, invalid_access_token):
     db_before = get_apps_by_project_id_from_pg(app_setup['project_id'])
     result =unsuccessful_request_update_app(
-        auth_token=invalid_token,
+        auth_token=invalid_access_token,
         project_id=app_setup['project_id'],
         app_id=app_setup['app_id'],
         request_body=valid_update_body,
@@ -352,6 +359,7 @@ def test_update_app_invalid_token(app_setup, valid_update_body, invalid_token):
     db_after = get_apps_by_project_id_from_pg(app_setup['project_id'])
     general_checker(actual=db_before[0]['name'], expected=db_after[0]['name'])
 
+@allure.step('Test unsuccessful update app with empty request_body')
 def test_update_app_empty_body(app_setup):
     db_before = get_apps_by_project_id_from_pg(app_setup['project_id'])
     result = unsuccessful_request_update_app(
@@ -370,7 +378,7 @@ def test_update_app_empty_body(app_setup):
     db_after = get_apps_by_project_id_from_pg(app_setup['project_id'])
     general_checker(actual=db_before[0]['name'], expected=db_after[0]['name'])
 
-
+@allure.step('Test success delete app')
 def test_delete_app_success(app_setup_delete):
     queue_name = create_rabbit_queue(exchange='test_course', routing_key='sync')
 
@@ -401,7 +409,7 @@ def test_delete_app_success(app_setup_delete):
     general_checker(actual=len(db_after), expected=0)
 
 
-
+@allure.step('Test unsuccessful delete app with not_found app_id')
 @pytest.mark.skip('Return 500 instead of 404')
 def test_delete_app_not_found(app_setup_delete, not_found_app_id):
     result = unsuccessful_request_delete_app(
@@ -417,7 +425,7 @@ def test_delete_app_not_found(app_setup_delete, not_found_app_id):
         msg_code='push_console_app_not_found'
     )
 
-
+@allure.step('Test unsuccessful delete app from project with invalid project_id')
 def test_delete_app_invalid_project_id(create_app_without_deletion, invalid_project_id):
     auth_data, _, _, app_data = create_app_without_deletion
     db_before = get_app_by_id_from_pg(app_data['app_id'])
@@ -438,6 +446,7 @@ def test_delete_app_invalid_project_id(create_app_without_deletion, invalid_proj
     db_after= get_app_by_id_from_pg(app_data['app_id'])
     general_checker(actual=len(db_after) > 0, expected=True)
 
+@allure.step('Test unsuccessful delete app without access_token')
 def test_delete_app_unauthorized(app_setup_delete):
     db_before = get_app_by_id_from_pg(app_setup_delete['app_id'])
     general_checker(actual=len(db_before) > 0, expected=True)
@@ -456,7 +465,7 @@ def test_delete_app_unauthorized(app_setup_delete):
     db_after = get_app_by_id_from_pg(app_setup_delete['app_id'])
     general_checker(actual=len(db_after) > 0, expected=True)
 
-
+@allure.step('Test unsuccessful delete app with invalid access_token')
 def test_delete_app_invalid_token(app_setup_delete):
     db_before = get_app_by_id_from_pg(app_setup_delete['app_id'])
     general_checker(actual=len(db_before) > 0, expected=True)
@@ -475,7 +484,7 @@ def test_delete_app_invalid_token(app_setup_delete):
     db_after = get_app_by_id_from_pg(app_setup_delete['app_id'])
     general_checker(actual=len(db_after) > 0, expected=True)
 
-
+@allure.step('Test unsuccessful delete app twice - second delete should fail')
 def test_delete_app_twice(app_setup_delete):
 
     db_before = get_app_by_id_from_pg(app_setup_delete['app_id'])

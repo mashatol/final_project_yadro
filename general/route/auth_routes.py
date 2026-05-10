@@ -2,6 +2,7 @@ import allure
 from config import BASE_URL, EMAIL, PASSWORD
 from general.helpers import add_auth_header_to_default
 from general.requests_wrapper.rest_request import make_rest_request
+from models.pydantic_models.auth_models import RefreshTokensModel
 from models.pydantic_models.common_models import BaseResponseModel
 
 LOGIN_USER_ROUTE = 'push-console/api/v1/auth/login'
@@ -57,3 +58,17 @@ def unsuccessful_request_change_password(auth_token, request_body=None, status_c
                                  pydantic_model=pydantic_model)
     return response
 
+@allure.step("Successful request POST REFRESH TOKENS")
+def success_request_refresh_tokens(request_body, pydantic_model=RefreshTokensModel):
+    response = make_rest_request(url=BASE_URL+ REFRESH_TOKENS_ROUTE,
+                                 json = request_body,
+                                 pydantic_model=pydantic_model)
+    return response
+
+@allure.step("Unsuccessful request POST REFRESH TOKENS")
+def unsuccessful_request_refresh_tokens(request_body, status_code = None, pydantic_model=BaseResponseModel):
+    response = make_rest_request(url=BASE_URL+ REFRESH_TOKENS_ROUTE,
+                                 json = request_body,
+                                 status_code=status_code,
+                                 pydantic_model=pydantic_model)
+    return response

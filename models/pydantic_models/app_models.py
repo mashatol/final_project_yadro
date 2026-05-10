@@ -1,8 +1,6 @@
 from datetime import datetime
 from typing import Optional, List
-
 from pydantic import Field
-
 from models.pydantic_models.common_models import CommonModel, BaseResponseWithDataModel
 
 

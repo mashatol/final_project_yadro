@@ -1,10 +1,8 @@
-
 import allure
 from config import BASE_URL
 from general.helpers import add_auth_header_to_default
 from general.requests_wrapper.rest_request import make_rest_request
 from models.pydantic_models.common_models import BaseResponseModel
-from test_data.user_test_data import user_test_data
 
 GET_USERS_ROUTE = 'push-console/api/v1/users'
 APPROVE_USER_ROUTE = 'push-console/api/v1/users/{user_id}/approve'

@@ -1,7 +1,7 @@
-from general.helpers.postgres_db_helpers import get_user_by_id_from_pg
+import allure
 from general.route.auth_routes import success_request_change_password, \
     unsuccessful_request_change_password, success_request_logout_user, \
-    unsuccessful_request_logout_user
+    unsuccessful_request_logout_user, success_request_refresh_tokens, unsuccessful_request_refresh_tokens
 from general.checkers.general_checkers import check_rest_response
 from models.pydantic_models.common_models import BaseResponseModel
 from test_data.enums import ResponseStatus
@@ -10,7 +10,7 @@ pytest_plugins = [
     'fixtures.auth_fixtures'
 ]
 
-
+@allure.step('Test success change password')
 def test_change_password_success(valid_change_password_body, access_token, user_id, valid_user_data):
     result = success_request_change_password(request_body=valid_change_password_body,
                                              auth_token=access_token,
@@ -22,7 +22,7 @@ def test_change_password_success(valid_change_password_body, access_token, user_
         msg_code = 'push_console_password_changed'
     )
 
-
+@allure.step('Test unsuccessful change password new password same as old')
 def test_change_password_same_as_old(access_token, valid_user_data):
     old_password = valid_user_data['password']
     request_body = {
@@ -42,6 +42,7 @@ def test_change_password_same_as_old(access_token, valid_user_data):
         msg_code='push_console_provided_old_password'
     )
 
+@allure.step('Test unsuccessful change password without access_token')
 def test_change_password_unauthorized(valid_change_password_body):
     result = unsuccessful_request_change_password(
         auth_token="",
@@ -54,7 +55,7 @@ def test_change_password_unauthorized(valid_change_password_body):
         msg_code='general_unauthorized'
     )
 
-
+@allure.step('Test unsuccessful change password with invalid access_token')
 def test_change_password_invalid_token(valid_change_password_body):
     result = unsuccessful_request_change_password(
         auth_token="invalid_token_123",
@@ -68,6 +69,7 @@ def test_change_password_invalid_token(valid_change_password_body):
         msg_code='general_bad_token'
     )
 
+@allure.step('Test success logout user')
 def test_logout_success(access_token, user_id):
 
     result = success_request_logout_user(
@@ -82,8 +84,8 @@ def test_logout_success(access_token, user_id):
     )
 
 
-
-def test_logout_without_token():
+@allure.step('Test unsuccessful logout user without access_token')
+def test_logout_unauthorized():
     result = unsuccessful_request_logout_user(
         auth_token="",
         status_code=401
@@ -94,9 +96,10 @@ def test_logout_without_token():
         msg_code='general_unauthorized'
     )
 
-def test_logout_invalid_token_formats(invalid_token):
+@allure.step('Test unsuccessful logout user with invalid access_token')
+def test_logout_invalid_token(invalid_access_token):
     result = unsuccessful_request_logout_user(
-        auth_token=invalid_token,
+        auth_token=invalid_access_token,
         status_code=401
     )
 
@@ -106,7 +109,7 @@ def test_logout_invalid_token_formats(invalid_token):
         msg_code='general_bad_token'
     )
 
-
+@allure.step('Test unsuccessful logout user twice - second logout should fail')
 def test_logout_twice(access_token):
     result1 = success_request_logout_user(auth_token=access_token)
 
@@ -125,4 +128,40 @@ def test_logout_twice(access_token):
         response=result2,
         status=ResponseStatus.ERROR,
         msg_code='push_console_session_not_found'
+    )
+
+@allure.step('Test success refresh_token')
+def test_refresh_tokens_success(refresh_token):
+    request_body = {"refresh_token": refresh_token}
+
+    result = success_request_refresh_tokens(request_body=request_body)
+
+    check_rest_response(
+        response=result,
+        status=ResponseStatus.OK,
+        msg_code='push_console_refresh_tokens_successful'
+    )
+
+@allure.step('Test unsuccessful refresh invalid refresh_token')
+def test_refresh_invalid_refresh_token(invalid_refresh_token):
+    request_body = {"refresh_token": invalid_refresh_token}
+
+    result = unsuccessful_request_refresh_tokens(request_body=request_body, status_code = 401)
+
+    check_rest_response(
+        response=result,
+        status=ResponseStatus.ERROR,
+        msg_code='general_bad_token'
+    )
+
+@allure.step('Test unsuccessful refresh_token with empty request_body')
+def test_refresh_token_empty_body():
+    request_body = { }
+
+    result = unsuccessful_request_refresh_tokens(request_body=request_body, status_code=401)
+
+    check_rest_response(
+        response=result,
+        status=ResponseStatus.ERROR,
+        msg_code='general_bad_token'
     )

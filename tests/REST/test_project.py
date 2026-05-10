@@ -1,5 +1,8 @@
 from itertools import count
 from types import NoneType
+
+import allure
+
 from config import BASE_URL
 from general.checkers.general_checkers import general_checker, check_rest_response
 from general.checkers.rabbitmq_checkers import check_rabbit_event
@@ -26,7 +29,7 @@ pytest_plugins = [
     'fixtures.project_fixtures'
 ]
 
-
+@allure.step('Test success delete project')
 def test_delete_project_success(create_project):
     auth_data, project = create_project
 
@@ -53,6 +56,7 @@ def test_delete_project_success(create_project):
     db_after = get_project_by_id_from_pg(project_id=project['data']['project_id'])
     general_checker(actual=len(db_after), expected=0)
 
+@allure.step('Test unsuccessful delete project with invalid_id')
 def test_delete_project_invalid_id(create_project, invalid_project_id):
     auth_data, project = create_project
 
@@ -70,6 +74,7 @@ def test_delete_project_invalid_id(create_project, invalid_project_id):
     db_projects_after = get_project_by_id_from_pg(auth_data['user_id'])
     general_checker(actual=len(db_projects_after), expected=count_before)
 
+@allure.step('Test unsuccessful delete project without access_token')
 def test_delete_project_unauthorized(create_project):
     auth_data, project = create_project
 
@@ -91,14 +96,15 @@ def test_delete_project_unauthorized(create_project):
     db_projects_after = get_project_by_id_from_pg(auth_data['user_id'])
     general_checker(actual=len(db_projects_after), expected=count_before)
 
-def test_delete_project_invalid_token(create_project, invalid_token):
+@allure.step('Test unsuccessful delete project with invalid access_token')
+def test_delete_project_invalid_token(create_project, invalid_access_token):
     auth_data, project = create_project
 
     db_projects_before = get_project_by_id_from_pg(auth_data['user_id'])
     count_before = len(db_projects_before)
 
     result = unsuccessful_request_delete_project(
-        auth_token=invalid_token,
+        auth_token=invalid_access_token,
         project_id=project['data']['project_id'],
         status_code = 401
     )
@@ -112,7 +118,7 @@ def test_delete_project_invalid_token(create_project, invalid_token):
     db_projects_after = get_project_by_id_from_pg(auth_data['user_id'])
     general_checker(actual=len(db_projects_after), expected=count_before)
 
-
+@allure.step('Test unsuccessful delete already project')
 def test_delete_already_deleted_project(create_project):
     auth_data, project = create_project
 
@@ -139,6 +145,7 @@ def test_delete_already_deleted_project(create_project):
     db_projects_after = get_project_by_id_from_pg(auth_data['user_id'])
     general_checker(actual=len(db_projects_after), expected=count_before)
 
+@allure.step('Test success update project')
 def test_update_project_success(update_project_data):
     new_name = rand_project_name()
 
@@ -157,6 +164,7 @@ def test_update_project_success(update_project_data):
     db_project_after = get_project_by_id_from_pg(update_project_data['project_id'])[0]
     general_checker(actual=db_project_after['name'], expected=new_name)
 
+@allure.step('Test unsuccessful update project with invalid name')
 def test_update_project_invalid_name(update_project_data, invalid_project_name):
 
     db_project_before = get_project_by_id_from_pg(update_project_data['project_id'])[0]
@@ -174,7 +182,7 @@ def test_update_project_invalid_name(update_project_data, invalid_project_name):
     db_project_after = get_project_by_id_from_pg(update_project_data['project_id'])[0]
     general_checker(actual=db_project_after['name'], expected=update_project_data['old_name'])
 
-
+@allure.step('Test unsuccessful update project without access_token')
 def test_update_project_unauthorized(update_project_data):
 
     db_project_before = get_project_by_id_from_pg(update_project_data['project_id'])[0]
@@ -194,14 +202,14 @@ def test_update_project_unauthorized(update_project_data):
     db_project_after = get_project_by_id_from_pg(update_project_data['project_id'])[0]
     general_checker(actual=db_project_after['name'], expected=update_project_data['old_name'])
 
-
-def test_update_project_invalid_token(update_project_data, invalid_token):
+@allure.step('Test unsuccessful update project with invalid access_token')
+def test_update_project_invalid_token(update_project_data, invalid_access_token):
 
     db_project_before = get_project_by_id_from_pg(update_project_data['project_id'])[0]
     general_checker(actual=db_project_before['name'], expected=update_project_data['old_name'])
 
     result = unsuccessful_request_update_project(
-        auth_token=invalid_token,
+        auth_token=invalid_access_token,
         request_body={"name": rand_project_name()},
         project_id=update_project_data['project_id'],
         status_code=401
@@ -213,7 +221,7 @@ def test_update_project_invalid_token(update_project_data, invalid_token):
     db_project_after = get_project_by_id_from_pg(update_project_data['project_id'])[0]
     general_checker(actual=db_project_after['name'], expected=update_project_data['old_name'])
 
-
+@allure.step('Test unsuccessful update project with invalid project_id')
 def test_update_project_invalid_id(update_project_data, invalid_project_id):
 
     db_project_before = get_project_by_id_from_pg(update_project_data['project_id'])[0]
@@ -233,7 +241,7 @@ def test_update_project_invalid_id(update_project_data, invalid_project_id):
     db_project_after = get_project_by_id_from_pg(update_project_data['project_id'])[0]
     general_checker(actual=db_project_after['name'], expected=update_project_data['old_name'])
 
-
+@allure.step('Test unsuccessful update project without name')
 def test_update_project_empty_name(update_project_data, no_project_name):
 
     db_before = get_project_by_id_from_pg(update_project_data['project_id'])[0]
@@ -253,7 +261,7 @@ def test_update_project_empty_name(update_project_data, no_project_name):
     db_project_after = get_project_by_id_from_pg(update_project_data['project_id'])[0]
     general_checker(actual=db_project_after['name'], expected=update_project_data['old_name'])
 
-
+@allure.step('Test success add service token')
 def test_add_service_token_success(create_project_with_deletion):
     auth_data, project_data = create_project_with_deletion
 
@@ -284,7 +292,7 @@ def test_add_service_token_success(create_project_with_deletion):
     db_after = get_service_tokens_by_project_id_from_pg(project_data['project_id'])
     general_checker(actual=db_after is not None, expected=True)
 
-
+@allure.step('Test success add 3 service tokens')
 def test_add_multiple_tokens_success(create_project_with_deletion):
     auth_data, project_data = create_project_with_deletion
 
@@ -313,7 +321,7 @@ def test_add_multiple_tokens_success(create_project_with_deletion):
     general_checker(actual=len(db_after), expected=tokens_count)
 
 
-
+@allure.step('Test unsuccessful add service token without access_token')
 def test_add_token_unauthorized(create_project_with_deletion):
     _, project_data = create_project_with_deletion
 
@@ -335,14 +343,15 @@ def test_add_token_unauthorized(create_project_with_deletion):
     db_after = get_service_tokens_count_by_project_id_from_pg(project_data['project_id'])
     general_checker(actual=db_before, expected=db_after)
 
-def test_add_token_invalid_token(create_project_with_deletion, invalid_token):
+@allure.step('Test unsuccessful add service token with invalid access_token')
+def test_add_token_invalid_token(create_project_with_deletion, invalid_access_token):
     _, project_data = create_project_with_deletion
 
     db_before = get_service_tokens_count_by_project_id_from_pg(project_data['project_id'])
     general_checker(actual=db_before== 0, expected=True)
 
     result = unsuccessful_request_add_token(
-        auth_token= invalid_token,
+        auth_token= invalid_access_token,
         project_id=project_data['project_id'],
         status_code=401
     )
@@ -356,7 +365,7 @@ def test_add_token_invalid_token(create_project_with_deletion, invalid_token):
     db_after = get_service_tokens_count_by_project_id_from_pg(project_data['project_id'])
     general_checker(actual=db_before, expected=db_after)
 
-
+@allure.step('Test unsuccessful add service token with invalid project_id')
 def test_add_token_invalid_project_id(create_authorized_user, invalid_project_id):
     _, auth_data = create_authorized_user
 
@@ -378,6 +387,7 @@ def test_add_token_invalid_project_id(create_authorized_user, invalid_project_id
     db_after = get_service_tokens_count_by_project_id_from_pg(invalid_project_id)
     general_checker(actual=db_before, expected=db_after)
 
+@allure.step('Test unsuccessful add service token with invalid project_name')
 @pytest.mark.skip("Return 500 instead of 422")
 def test_add_token_invalid_project_name(create_authorized_user, invalid_project_name):
     _, auth_data = create_authorized_user
@@ -394,6 +404,7 @@ def test_add_token_invalid_project_name(create_authorized_user, invalid_project_
         msg_code='go_validation'
     )
 
+@allure.step('Test success delete service token')
 def test_delete_service_token_success(create_service_token_to_delete):
 
     db_pw_before = get_service_tokens_count_by_project_id_from_pg(create_service_token_to_delete['project_id'])
@@ -414,6 +425,7 @@ def test_delete_service_token_success(create_service_token_to_delete):
     db_pw_after = get_service_tokens_count_by_project_id_from_pg(create_service_token_to_delete['project_id'])
     general_checker(actual=db_pw_after==0, expected=True)
 
+@allure.step('Test unsuccessful delete service token with invalid value')
 @pytest.mark.skip("Return 200 instead of 404")
 def test_delete_service_token_invalid_value(create_project_with_deletion):
     auth_data, project_data = create_project_with_deletion

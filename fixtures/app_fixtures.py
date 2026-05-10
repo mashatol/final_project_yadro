@@ -2,7 +2,7 @@ import pytest
 
 from general.route.app_routes import success_request_create_app, success_request_delete_app, success_request_get_apps
 from general.utils import rand_app_name, rand_package_name, rand_app_signature
-from models.pydantic_models.app_models import GetAppsModel
+
 
 
 @pytest.fixture
@@ -25,7 +25,6 @@ def invalid_app_name_body(invalid_app_name):
         "package_name": rand_package_name(),
         "app_signature": rand_app_signature()
     }
-
 
 @pytest.fixture
 def invalid_app_signature_body(invalid_app_signature):

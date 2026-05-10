@@ -1,4 +1,3 @@
-from random import choice
 
 from config import BASE_URL
 from general.requests_wrapper.rest_request import make_rest_request
@@ -27,7 +26,7 @@ def success_request_create_project(request_body,auth_token, pydantic_model = Cre
     response = make_rest_request(url =BASE_URL + CREATE_GET_PROJECT_ROUTE,
                                  json= request_body,
                                  headers= headers,
-                                 status_code=201,
+                                 status_code = 201,
                                  pydantic_model=pydantic_model)
     return response
 
@@ -37,7 +36,6 @@ def success_request_delete_project(auth_token, project_id, pydantic_model = Base
     response = make_rest_request(method='DELETE',
                                  url=BASE_URL + PROJECTS_ID_ROUTE.format(id=project_id),
                                  headers=headers,
-                                 status_code=200,
                                  pydantic_model=pydantic_model)
 
     return response

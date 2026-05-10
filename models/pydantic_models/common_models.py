@@ -1,10 +1,7 @@
 from typing import Optional, Any, TypeVar
-
 from pydantic import BaseModel, ConfigDict
-
 from test_data.enums import ResponseStatus
 
-T= TypeVar('T')
 
 class CommonModel(BaseModel):
     """Model for config."""
@@ -20,8 +17,7 @@ class BaseResponseModel(CommonModel):
 
 class BaseResponseWithDataModel(BaseResponseModel):
     """Model for REST responses with field 'data'."""
-    model_config = ConfigDict(extra='allow')
-    data: T
+    data: None
 
 
 class MetaModel(BaseModel):
