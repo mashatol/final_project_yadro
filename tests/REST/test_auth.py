@@ -6,9 +6,9 @@ from general.checkers.general_checkers import check_rest_response
 from models.pydantic_models.common_models import BaseResponseModel
 from test_data.enums import ResponseStatus
 
-pytest_plugins = [
-    'fixtures.auth_fixtures'
-]
+# pytest_plugins = [
+#     'fixtures.auth_fixtures'
+# ]
 
 @allure.step('Test success change password')
 def test_change_password_success(valid_change_password_body, access_token, user_id, valid_user_data):

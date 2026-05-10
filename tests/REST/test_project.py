@@ -24,10 +24,10 @@ from general.utils import rand_project_name
 from test_data.enums import ResponseStatus
 import pytest
 
-pytest_plugins = [
-    'fixtures.auth_fixtures',
-    'fixtures.project_fixtures'
-]
+# pytest_plugins = [
+#     'fixtures.auth_fixtures',
+#     'fixtures.project_fixtures'
+# ]
 
 @allure.step('Test success delete project')
 def test_delete_project_success(create_project):

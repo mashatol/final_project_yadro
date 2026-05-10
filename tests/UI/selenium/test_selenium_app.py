@@ -6,10 +6,10 @@ from config import BASE_URL
 from pages.registry_page import PageRegistry
 from general.utils import rand_project_name, rand_app_name, rand_package_name, rand_app_signature
 
-pytest_plugins = [
-    'fixtures.ui_fixtures',
-    'fixtures.auth_fixtures'
-]
+# pytest_plugins = [
+#     'fixtures.ui_fixtures',
+#     'fixtures.auth_fixtures'
+# ]
 
 @allure.step("Test success create app in project")
 def test_ui_selenium_create_app_in_project(project_ui):

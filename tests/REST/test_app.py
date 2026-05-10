@@ -448,6 +448,7 @@ def test_delete_app_invalid_project_id(create_app_without_deletion, invalid_proj
 
 @allure.step('Test unsuccessful delete app without access_token')
 def test_delete_app_unauthorized(app_setup_delete):
+
     db_before = get_app_by_id_from_pg(app_setup_delete['app_id'])
     general_checker(actual=len(db_before) > 0, expected=True)
     result = unsuccessful_request_delete_app(
@@ -500,8 +501,8 @@ def test_delete_app_twice(app_setup_delete):
                         status=ResponseStatus.OK,
                         msg_code='push_console_app_successful_deleted'
                         )
-    db_after = get_app_by_id_from_pg(app_setup_delete['app_id'])
-    general_checker(actual=len(db_after), expected=0)
+    db_after1 = get_app_by_id_from_pg(app_setup_delete['app_id'])
+    general_checker(actual=len(db_after1), expected=0)
 
     result2 = unsuccessful_request_delete_app(
         auth_token=app_setup_delete['token'],
@@ -515,8 +516,8 @@ def test_delete_app_twice(app_setup_delete):
                         msg_code='push_console_app_not_found'
     )
 
-    db_after = get_app_by_id_from_pg(app_setup_delete['app_id'])
-    general_checker(actual=len(db_after), expected=0)
+    db_after2 = get_app_by_id_from_pg(app_setup_delete['app_id'])
+    general_checker(actual=len(db_after2), expected=0)
 
 
 
