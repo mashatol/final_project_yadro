@@ -11,6 +11,7 @@ pytest_plugins = [
     'fixtures.auth_fixtures'
 ]
 
+@allure.step("Test success create app in project")
 def test_ui_selenium_create_app_in_project(project_ui):
     driver, pages = project_ui
 

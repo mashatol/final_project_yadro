@@ -11,6 +11,7 @@ pytest_plugins = [
     'fixtures.auth_fixtures'
 ]
 
+@allure.step("Test success authorization")
 def test_ui_selenium_auth_valid_credentials(valid_user_data):
     driver = webdriver.Firefox()
     driver.maximize_window()
