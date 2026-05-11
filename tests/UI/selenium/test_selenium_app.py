@@ -5,11 +5,6 @@ from config import BASE_URL
 from pages.registry_page import PageRegistry
 from general.utils import rand_project_name, rand_app_name, rand_package_name, rand_app_signature
 
-pytest_plugins = [
-    'fixtures.ui_fixtures',
-    'fixtures.auth_fixtures'
-]
-
 def test_ui_selenium_create_app_in_project(project_ui):
     driver, pages = project_ui
 

@@ -2,12 +2,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from pages.base_page import BasePage
 
-pytest_plugins = [
-    'fixtures.ui_fixtures',
-    'fixtures.auth_fixtures'
-]
-
-
 class LoginPage(BasePage):
     def __init__(self, driver):
         super().__init__(driver)
