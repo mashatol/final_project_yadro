@@ -66,57 +66,84 @@ m.tolstogyzowa_final_project/
 ├── test_cases.txt
 ```
 
-## 2. Запуск через Docker
-* Склонировать репозиторий
+## 2. Запуск через Docker и генерация Allure-отчета
 
-`git clone <ссылка_на_репозиторий>`
+* Склонировать репозиторий
+```text
+git clone <ссылка_на_репозиторий>
+```
 
 * Перейти в папку проекта
-
-`cd m.tolstogyzowa_final_project`
+```text
+cd m.tolstogyzowa_final_project
+```
 
 * Создать файл с личными данными
+```text
+touch config_file_local.json
+```
 
-`touch config_file_local.json`
-
-* Внести в него свои личные данные по шаблону
-`{
+* Внести в него свои личные данные по шаблону с помощью команды
+```text 
+ vim config_file_local.json`
+ ```
+```text
+ шаблон:
+{
     "EMAIL": "ваша_почта@example.com",
     "PASSWORD": "ваш_пароль"
-}`
-с помощью команды
-
-`vim config_file_local.json`
+}
+```
 
 * Собрать Docker образ
+```text
+docker build -t my-tests-full  .
+```
 
-`docker build -t my-tests-full  .`
+* Запустить контейнер
+```text
+docker run --name my-tests-container my-tests-full
+```
 
-* Запустить тесты
+* Скопировать результаты
+```text
+docker cp my-tests-container:/m.tolstogyzowa_final_project/allure-results ./allure-results
+```
 
-`docker run my-tests-full pytest -n <количество потоков> -v`
+Открыть отчёт
+```text
+allure serve allure-results
+```
 
 ## 3. Запуск локально
 
 * Склонировать репозиторий
-
-` git clone <ссылка_на_репозиторий>`
+```text
+git clone <ссылка_на_репозиторий>
+```
 
 * Перейти в папку проекта, создать виртуальное окружение и активировать его
-
-`python3 -m venv venv
-source venv/bin/activate`
+```text
+python3 -m venv venv
+```
+```text
+source venv/bin/activate
+```
 
 * Установить зависимости
-
-`pip install -r requirements.txt`
+```text
+pip install -r requirements.txt
+```
 
 * Создать файл с личными данными config_file_local.json по шаблону
-`{
-    "EMAIL": "ваша_почта@example.com",
-    "PASSWORD": "ваш_пароль"
-}`
+```text
+{
+   "EMAIL": "ваша_почта@example.com",
+   "PASSWORD": "ваш_пароль"
+}
+```
 
 * Запустить тесты
-
-`pytest -n <количество потоков> -v`
+```text
+pytest -n <количество потоков> -v
+```
