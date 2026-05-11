@@ -66,7 +66,7 @@ m.tolstogyzowa_final_project/
 ├── test_cases.txt
 ```
 
-## 2. Запуск через Docker и генерация Allure-отчета
+## 2. Запуск через Docker 
 
 * Склонировать репозиторий
 ```text
@@ -85,7 +85,7 @@ touch config_file_local.json
 
 * Внести в него свои личные данные по шаблону с помощью команды
 ```text 
- vim config_file_local.json`
+ vim config_file_local.json
  ```
 ```text
  шаблон:
@@ -100,19 +100,9 @@ touch config_file_local.json
 docker build -t my-tests-full  .
 ```
 
-* Запустить контейнер
+* Запустить тесты
 ```text
-docker run --name my-tests-container my-tests-full
-```
-
-* Скопировать результаты
-```text
-docker cp my-tests-container:/m.tolstogyzowa_final_project/allure-results ./allure-results
-```
-
-Открыть отчёт
-```text
-allure serve allure-results
+docker run my-tests-full pytest -n <количество потоков> -v
 ```
 
 ## 3. Запуск локально

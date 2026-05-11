@@ -2,7 +2,6 @@ venv/
 .idea/
 **/.pytest_cache/
 __pycache__
-config_file_local.json
 allure-results
 allure-report
 
