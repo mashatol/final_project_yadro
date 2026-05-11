@@ -1,7 +1,7 @@
 # **Финальный проект: Автотесты для сервиса Kvadra Push console**
 
 ## 1. Структура:
-
+```text
 m.tolstogyzowa_final_project/
 ├── fixtures/ 
 │ ├── auth_fixtures.py
@@ -64,6 +64,7 @@ m.tolstogyzowa_final_project/
 ├── config.py 
 ├── config_file.json
 ├── test_cases.txt
+```
 
 ## 2. Запуск через Docker
 * Склонировать репозиторий
