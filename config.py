@@ -6,10 +6,10 @@ def load_config(file):
     with open(config_file) as f:
         return json.load(f)
 
-config = load_config('config_file.json')
-EMAIL =os.getenv('EMAIL', config['EMAIL'])
-BASE_URL = config["BASE_URL"]
+config = load_config('config_file_local.json')
+EMAIL = os.getenv('EMAIL', config['EMAIL'])
 PASSWORD = os.getenv('PASSWORD', config['PASSWORD'])
+BASE_URL = config['BASE_URL']
 GRPC_HOST = config['GRPC_HOST']
 
 PUSH_CONSOLE_POSTGRES_DB = {

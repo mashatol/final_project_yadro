@@ -1,11 +1,9 @@
 {
   "BASE_URL": "http://193.169.128.91/",
-  "EMAIL": "mashatolstogyzowa@gmail.com",
-  "PASSWORD": "QweAsdZxc123!",
   "GRPC_HOST": "193.169.128.91:5000",
 
-  "PUSH_CONSOLE_USER": "",
-  "PUSH_CONSOLE_PASSWORD": "",
+  "EMAIL": " ",
+  "PASSWORD": " ",
 
   "PUSH_CONSOLE_POSTGRES_HOST": "193.169.128.91",
   "PUSH_CONSOLE_POSTGRES_PORT": 10001,
