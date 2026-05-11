@@ -6,12 +6,6 @@ from general.clients.rabbitmq import create_rabbit_queue
 from general.helpers.postgres_db_helpers import get_app_by_id_from_pg
 from general.route.grpc_routes import grpc_delete_app, grpc_delete_app_signature
 
-pytest_plugins = [
-    'fixtures.auth_fixtures',
-    'fixtures.app_fixtures',
-    'fixtures.project_fixtures'
-]
-
 @allure.step('Test success delete app')
 def test_grpc_delete_app_success(access_token, app_setup_delete):
     queue_name = create_rabbit_queue(exchange='test_course', routing_key='sync')

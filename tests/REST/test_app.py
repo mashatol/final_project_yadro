@@ -1,7 +1,6 @@
 import allure
 import pytest
 # from typing_extensions import disjoint_base
-
 from fixtures.app_fixtures import app_setup
 from fixtures.auth_fixtures import access_token
 from general.checkers.general_checkers import general_checker, check_rest_response
@@ -23,12 +22,6 @@ from general.utils import rand_app_name, rand_package_name, rand_app_signature
 from models.pydantic_models.app_models import GetAppsModel
 from models.pydantic_models.common_models import BaseResponseWithDataModel
 from test_data.enums import ResponseStatus
-
-pytest_plugins = [
-    'fixtures.auth_fixtures',
-    'fixtures.project_fixtures',
-    'fixtures.app_fixtures'
-]
 
 @allure.step('Test success create app')
 def test_create_app_success(create_project_with_deletion, valid_app_body):
@@ -360,10 +353,10 @@ def test_update_app_invalid_token(app_setup, valid_update_body, invalid_access_t
     general_checker(actual=db_before[0]['name'], expected=db_after[0]['name'])
 
 @allure.step('Test unsuccessful update app with empty request_body')
-def test_update_app_empty_body(app_setup):
+def test_update_app_empty_body(app_setup, access_token):
     db_before = get_apps_by_project_id_from_pg(app_setup['project_id'])
     result = unsuccessful_request_update_app(
-        auth_token=app_setup['token'],
+        auth_token=access_token,
         project_id=app_setup['project_id'],
         app_id=app_setup['app_id'],
         request_body={},

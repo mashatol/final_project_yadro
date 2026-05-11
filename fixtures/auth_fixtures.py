@@ -1,6 +1,10 @@
+import os
+
 import pytest
 from config import EMAIL, PASSWORD
 from general.route.auth_routes import success_request_login_user, success_request_logout_user
+from general.route.project_routes import success_request_delete_project
+
 
 @pytest.fixture()
 def valid_user_data():
@@ -46,7 +50,12 @@ def create_authorized_user(valid_user_data):
 
     yield request_body['email'], response['data']
 
-    success_request_logout_user(auth_token=response['data']['access_token'])
+    if not os.environ.get('PYTEST_XDIST_WORKER'):
+        try:
+            success_request_logout_user(auth_token=response['data']['access_token'])
+        except:
+            pass
+
 
 
 @pytest.fixture(params=[

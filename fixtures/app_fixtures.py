@@ -95,11 +95,14 @@ def create_app(create_project_with_deletion, valid_app_body):
     yield auth_data, project_data, create_response, app_data
 
     if app_id:
-        success_request_delete_app(
-            auth_token=auth_data['access_token'],
-            project_id=project_id,
-            app_id=app_id
-        )
+        try:
+            success_request_delete_app(
+                auth_token=auth_data['access_token'],
+                project_id=project_id,
+                app_id=app_id
+            )
+        except:
+            pass
 
 @pytest.fixture
 def app_setup(create_app):

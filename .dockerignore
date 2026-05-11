@@ -1,0 +1,11 @@
+venv/
+.idea/
+**/.pytest_cache/
+__pycache__
+config_file_local.json
+allure-results
+allure-report
+
+fixtures/ui.fixtures.py
+tests/UI/selenium
+

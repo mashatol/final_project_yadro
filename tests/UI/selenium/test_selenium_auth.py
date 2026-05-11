@@ -1,17 +1,9 @@
-
 import allure
 from selenium import webdriver
-
 from config import BASE_URL
 from pages.login_page import LoginPage
 from pages.registry_page import PageRegistry
-#
-# pytest_plugins = [
-#     'fixtures.ui_fixtures',
-#     'fixtures.auth_fixtures'
-# ]
 
-@allure.step("Test success authorization")
 def test_ui_selenium_auth_valid_credentials(valid_user_data):
     driver = webdriver.Firefox()
     driver.maximize_window()

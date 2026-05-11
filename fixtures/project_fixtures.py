@@ -39,9 +39,14 @@ def create_project_with_deletion(create_authorized_user):
 
     yield auth_data, project_data
 
+    try:
+        success_request_delete_project(
+            auth_token=auth_data['access_token'],
+            project_id=response['data']['project_id']
+        )
+    except:
+        pass
 
-    success_request_delete_project(auth_token=auth_data['access_token'],
-                                   project_id=response['data']['project_id'])
 
 @pytest.fixture(params=['abc' , None, "", "  "])
 def invalid_project_name(request):
